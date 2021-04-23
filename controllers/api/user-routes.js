@@ -1,13 +1,13 @@
-const router = require('express').Router();
-const { User } = require('../../models');
+const router = require("express").Router();
+const { User } = require("../../models");
 
-router.post('/', async (req, res) => {
+router.post("/", async (req, res) => {
   try {
     const newUser = await User.create({
       // TODO: SET USERNAME TO USERNAME SENT IN REQUEST
       username: req.body.username,
       // TOD: SET PASSWORD TO PASSWORD SENT IN REQUEST
-      password: req.body.password
+      password: req.body.password,
     });
 
     req.session.save(() => {
@@ -24,7 +24,7 @@ router.post('/', async (req, res) => {
   }
 });
 
-router.post('/login', async (req, res) => {
+router.post("/login", async (req, res) => {
   try {
     const user = await User.findOne({
       where: {
@@ -33,14 +33,14 @@ router.post('/login', async (req, res) => {
     });
 
     if (!user) {
-      res.status(400).json({ message: 'No user account found!' });
+      res.status(400).json({ message: "No user account found!" });
       return;
     }
 
     const validPassword = user.checkPassword(req.body.password);
 
     if (!validPassword) {
-      res.status(400).json({ message: 'No user account found!' });
+      res.status(400).json({ message: "No user account found!" });
       return;
     }
 
@@ -51,20 +51,24 @@ router.post('/login', async (req, res) => {
 
       // TODO: SET LOGGEDIN TO TRUE IN REQUEST SESSION
 
-      res.json({ user, message: 'You are now logged in!' });
+      res.json({ user, message: "You are now logged in!" });
     });
   } catch (err) {
-    res.status(400).json({ message: 'No user account found!' });
+    res.status(400).json({ message: "No user account found!" });
   }
 });
 
-router.post('/logout', (req, res) => {
-  if (req.session.loggedIn) {
-    req.session.destroy(() => {
-      res.status(204).end();
-    });
-  } else {
-    res.status(404).end();
+router.post("/logout", (req, res) => {
+  try {
+    if (req.session.loggedIn) {
+      req.session.destroy(() => {
+        res.status(204).end();
+      });
+    } else {
+      res.status(404).end();
+    }
+  } catch (error) {
+    res.status(204).end();
   }
 });
 
